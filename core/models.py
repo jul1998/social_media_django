@@ -13,3 +13,14 @@ class Image(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "image": str(self.image),
+            "name": self.name,
+            "user": self.user.username if self.user else None,
+            "description": self.description,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
+        }

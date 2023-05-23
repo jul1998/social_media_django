@@ -47,3 +47,9 @@ def upload_image(request):
             return JsonResponse({'message': 'Image uploaded successfully.', 'image_url': image_url})
 
     return JsonResponse({'message': 'Invalid request.'}, status=400)
+
+def get_images(request):
+    images = Image.objects.all().order_by('-created_at')
+    data = [image.serialize() for image in images]
+    return JsonResponse({'data': data})
+        
