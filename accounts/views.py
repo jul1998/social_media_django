@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 import jwt
 from datetime import datetime, timedelta
-
+from .models import CustomUser
 
 def create_auth_token(user_id):
     payload = {
@@ -30,12 +30,19 @@ def register(request):
         username = body.get('username')
         email = body.get('email')
         password = body.get('password')
+        bio=body.get('bio')
+        phone=body.get('phone')
+        address=body.get('address')
+        first_name=body.get('first_name')
+        last_name=body.get('last_name')
+        image=body.get('image')
+
         print(username, email, password)
         if not all([username, email, password]):
             return JsonResponse({'msg': 'Please fill all fields'}, status=400)
         
         try:
-            user = User.objects.create_user(username=username, email=email, password=password)
+            user = CustomUser.objects.create_user(username=username, email=email, password=password, bio=bio, phone=phone, address=address, first_name=first_name, last_name=last_name, image=image)
             user.save()
             login(request, user)
             return JsonResponse({'msg': 'User created successfully'}, status=201)
@@ -69,4 +76,7 @@ def login_view(request):
         errors = "An error occurred"
         return JsonResponse({'msg': 'Invalid form data', 'errors': errors}, status=400)
 
-        
+
+def get_profile_info(request, user_id):
+    user = CustomUser.objects.get(id=user_id)
+    return JsonResponse({'data': user.serialize()})

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from .models import Image
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
+from accounts.models import CustomUser
 # Create your views here.
 
 def home(request):
@@ -15,7 +16,7 @@ def upload_image(request):
         description = request.POST.get("description").strip()
         
         # Check if the user exists
-        user = User.objects.get(id=user_id)
+        user = CustomUser.objects.get(id=user_id)
         if not user:
             return JsonResponse({'message': 'Invalid user.'}, status=400)
         
@@ -53,3 +54,10 @@ def get_images(request):
     data = [image.serialize() for image in images]
     return JsonResponse({'data': data})
         
+
+def get_images_by_user_id(request, user_id):
+    images = Image.objects.filter(user_id=user_id).order_by('-created_at')
+    images_data = [image.serialize() for image in images]
+    return JsonResponse({'data': images_data})
+
+
