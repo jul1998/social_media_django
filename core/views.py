@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Image
+from .models import Image, Comment
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from accounts.models import CustomUser
+import json
 # Create your views here.
 
 def home(request):
@@ -59,5 +60,14 @@ def get_images_by_user_id(request, user_id):
     images = Image.objects.filter(user_id=user_id).order_by('-created_at')
     images_data = [image.serialize() for image in images]
     return JsonResponse({'data': images_data})
+
+def get_comments_by_image(request):
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    image_id = body['image_id']
+    comments = Comment.objects.filter(image_id=image_id).order_by('-created_at')
+    comments_data = [comment.serialize() for comment in comments]
+    return JsonResponse({'data': comments_data})
+
 
 
