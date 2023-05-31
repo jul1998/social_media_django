@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-# 
+from django.core.exceptions import ValidationError
+
 
 
 class CustomUser(AbstractUser):
@@ -14,7 +15,19 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.username
     
+    
     def serialize(self):
+
+        followers = [
+            {"id": user.id, "username": user.username}
+            for user in self.followers.all()
+        ]
+
+        following = [
+            {"id": user.id, "username": user.username}
+            for user in self.following.all()
+        ]
+                
         return {
             "id": self.id,
             "username": self.username,
@@ -22,8 +35,8 @@ class CustomUser(AbstractUser):
             "bio": self.bio,
             "phone": self.phone,
             "address": self.address,
-            "followers": [user.username for user in self.followers.all()],
-            "following": [user.username for user in self.following.all()],
+            "followers": followers,
+            "following": following,
             "first_name": self.first_name,
             "last_name": self.last_name,
             "email": self.email,

@@ -47,6 +47,7 @@ def register(request):
             login(request, user)
             return JsonResponse({'msg': 'User created successfully'}, status=201)
         except Exception as e:
+            print(e)
             return JsonResponse({'error': str(e)}, status=400) 
     else:
         return JsonResponse({"msg": "Method not allowed"}, status=400)
@@ -80,3 +81,5 @@ def login_view(request):
 def get_profile_info(request, user_id):
     user = CustomUser.objects.get(id=user_id)
     return JsonResponse({'data': user.serialize()})
+
+
