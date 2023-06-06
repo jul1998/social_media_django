@@ -62,12 +62,22 @@ def get_images_by_user_id(request, user_id):
     return JsonResponse({'data': images_data})
 
 def get_comments_by_image(request):
+
     body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
-    image_id = body['image_id']
-    comments = Comment.objects.filter(image_id=image_id).order_by('-created_at')
-    comments_data = [comment.serialize() for comment in comments]
-    return JsonResponse({'data': comments_data})
+    print("body_unicode", request)
+    print("request.body", request.body)
+    try:
+        body = json.loads(body_unicode)
+    except Exception as e:
+        print("Error", e)
+        return JsonResponse({'message': 'Invalid request.'}, status=400)
+    else:
+
+        image_id = body.get('image_id')
+        print("image_id", image_id)
+        comments = Comment.objects.filter(image_id=image_id).order_by('-created_at')
+        comments_data = [comment.serialize() for comment in comments]
+        return JsonResponse({'data': comments_data})
 
 
 
