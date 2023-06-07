@@ -18,6 +18,7 @@ class Comment(models.Model):
         return {
             "id": self.id,
             "user": self.user.username,
+            "user_image": self.user.image.name,
             "image": self.image.name,
             "content": self.content,
             "created_at": self.created_at,
@@ -47,6 +48,7 @@ class Image(models.Model):
             "image": str(self.image),
             "name": self.name,
             "user": self.user.username if self.user else None,
+            "user_id": self.user.id if self.user else None,
             "description": self.description,
             "created_at": self.created_at,
             "updated_at": self.updated_at

@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Image, Comment
 from django.core.files.storage import default_storage
-from django.contrib.auth.models import User
 from accounts.models import CustomUser
 import json
 # Create your views here.
@@ -61,23 +60,33 @@ def get_images_by_user_id(request, user_id):
     images_data = [image.serialize() for image in images]
     return JsonResponse({'data': images_data})
 
-def get_comments_by_image(request):
+import json
 
+def get_comments_by_image(request, image_id):
+    comments = Comment.objects.filter(image_id=image_id).order_by('-created_at')
+    comments_data = [comment.serialize() for comment in comments]
+    return JsonResponse({'data': comments_data})
+    
+
+
+
+
+def post_comment(request):
     body_unicode = request.body.decode('utf-8')
-    print("body_unicode", request)
-    print("request.body", request.body)
     try:
         body = json.loads(body_unicode)
     except Exception as e:
-        print("Error", e)
         return JsonResponse({'message': 'Invalid request.'}, status=400)
     else:
-
+        user_id = body.get('user_id')
         image_id = body.get('image_id')
-        print("image_id", image_id)
-        comments = Comment.objects.filter(image_id=image_id).order_by('-created_at')
-        comments_data = [comment.serialize() for comment in comments]
-        return JsonResponse({'data': comments_data})
-
-
-
+        content = body.get('content')
+        user = CustomUser.objects.get(id=user_id)
+        image = Image.objects.get(id=image_id)
+        comment = Comment.objects.create(
+            user=user,
+            image=image,
+            content=content
+        )
+        comment.save()
+        return JsonResponse({'message': 'Comment posted successfully.'})
