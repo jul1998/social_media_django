@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
-from .models import Image, Comment
+from .models import Image, Comment, Like
 from django.core.files.storage import default_storage
 from accounts.models import CustomUser
 import json
+
 # Create your views here.
 
 def home(request):
@@ -69,8 +70,6 @@ def get_comments_by_image(request, image_id):
     
 
 
-
-
 def post_comment(request):
     body_unicode = request.body.decode('utf-8')
     try:
@@ -90,3 +89,39 @@ def post_comment(request):
         )
         comment.save()
         return JsonResponse({'message': 'Comment posted successfully.'})
+        
+
+def like_image(request):
+    body_unicode = request.body.decode('utf-8')
+    try:
+        body = json.loads(body_unicode)
+        
+    except Exception as e:
+        return JsonResponse({'message': 'Invalid Request.'}, status=400)
+    else: 
+
+        user_id = body.get('user_id')
+        image_id = body.get('image_id')
+        user = get_object_or_404(CustomUser, id=user_id)
+        image = get_object_or_404(Image, id=image_id)
+
+        # Check if the user has already liked the image
+        existing_like = Like.objects.filter(user=user, image=image)
+        if existing_like.exists():
+            # Remove like
+            existing_like.delete()
+
+            return JsonResponse({'message': 'Image like already liked.'})
+        
+        like = Like.objects.create(
+            user=user,
+            image=image
+        )
+        like.save()
+        return JsonResponse({'message': 'Image liked successfully.'})
+
+def get_likes_by_image(request, image_id):
+    likes = Like.objects.filter(image_id=image_id)
+    likes_data =[like.serialize() for like in likes]
+    return JsonResponse({'data': likes_data})
+

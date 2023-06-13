@@ -8,4 +8,6 @@ urlpatterns = [
     path('get-images/<int:user_id>/', views.get_images_by_user_id, name='get-images-by-user-id'),
     path('get-comments/<int:image_id>/', views.get_comments_by_image, name='get-comments'),
    path('post-comment/', views.post_comment, name='post-comment'),
+    path('like-image/', views.like_image, name='like-image'),
+    path('get-likes/<int:image_id>/', views.get_likes_by_image, name='get-likes'),
 ]

@@ -54,3 +54,19 @@ class Image(models.Model):
             "updated_at": self.updated_at
         }
     
+class Like(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE )
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.image.name}"
+    
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.username if self.user else None,
+            "image": self.image.name,
+            "created_at": self.created_at
+        }
+    
