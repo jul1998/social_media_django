@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import Notification
 from accounts.models import CustomUser
@@ -41,3 +41,22 @@ def notify_when_liked(request):
     else:
         return JsonResponse({'message': 'Invalid request.'}, status=400)
     
+def get_notifications(request, user_id):
+    if request.method == "GET":
+        user = get_object_or_404(CustomUser, id=user_id)
+        
+        # Check if user exists
+        if not user:
+            return JsonResponse({'message': 'Invalid user.'}, status=400)
+        
+        notifications = user.notifications.all()
+        return JsonResponse([notification.serialize() for notification in notifications], safe=False)
+    else:
+        return JsonResponse({'message': 'Invalid request.'}, status=400)
+    
+
+def show_not_seen_notifications(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    notifications = Notification.objects.filter(user=user, is_seen=False)
+    notifications_data = [notification.serialize() for notification in notifications]
+    return JsonResponse({"data": notifications_data}, safe=False)
