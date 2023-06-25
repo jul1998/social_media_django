@@ -8,4 +8,5 @@ import json
     
 def get_all_groups(request):
     groups = Groups.objects.all()
-    return JsonResponse([group.serialize() for group in groups], safe=False)
+    return JsonResponse({"data": [group.serialize() for group in groups]}, safe=False)
+    
