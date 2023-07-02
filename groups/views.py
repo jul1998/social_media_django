@@ -19,6 +19,7 @@ def join_group(request):
         user_id = data.get("user_id")
         
         group = get_object_or_404(Groups, id=group_id)
+        
 
         if group.members.filter(id=user_id).exists():
             return JsonResponse({"message": "You are already a member of this group"}, status=400)
@@ -32,3 +33,24 @@ def join_group(request):
     return JsonResponse({"message": "Invalid request"}, status=400)
 
 
+def leave_group(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        
+        group_id = data.get("group_id")
+        user_id = data.get("user_id")
+        
+        group = get_object_or_404(Groups, id=group_id)
+        print(group)
+
+        if not group.members.filter(id=user_id).exists():
+            return JsonResponse({"message": "You are not a member of this group"}, status=400)
+        
+        user = get_object_or_404(CustomUser, id=user_id)
+        if not user:
+            return JsonResponse({"message": "User not found"})
+        
+        group.members.remove(user)
+        return JsonResponse({"message": "You have left this group"}, status=200)
+    
+    return JsonResponse({"message": "Invalid request"}, status=400)
